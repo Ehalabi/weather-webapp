@@ -18,3 +18,5 @@
 !Jenkinsfile
 !dockerfile
 !*.txt
+!*.yaml
+!*.yml

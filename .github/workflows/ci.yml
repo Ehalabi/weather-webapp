@@ -1,0 +1,35 @@
+name: GitHub Actions build weatherapp container and update helm chart value file version tag
+
+run-name: ${{ github.actor }} is building simple java maven app 🚀
+on: [push]
+jobs:
+  dockerhub-login:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build with Docker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: e119/my-app:${{ github.sha }}
+
+      - name: Clone Helm chart repo
+        run: |
+          git clone https://x-access-token:${{ secrets.HELM_REPO_TOKEN }}@github.com/Ehalabi/weather-helm.git
+          cd weather-helm
+          sed -i "s|tag: .*|tag: \"${{ github.sha }}\"|" weatherapp-github-helm/values.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add weatherapp-github-helm/values.yaml
+          git commit -m "Update image tag to ${{ github.sha }}"
+          git push
+
