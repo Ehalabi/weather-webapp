@@ -1,0 +1,99 @@
+import pytest
+from project_board.src import parser
+
+pars = parser.Parser()
+
+cords_data = {
+        "results": [{"id": 294801, "name": "Haifa",
+                     "latitude": 32.81841, "longitude": 34.9885, "elevation": 40.0, 
+                     "feature_code": "PPLA", "country_code": "IL", "admin1_id": 294800, 
+                     "timezone": "Asia/Jerusalem", "population": 267300, 
+                     "country_id": 294640, "country": "Israel", "admin1": "Haifa"}], 
+        "generationtime_ms": 1.011014
+              }
+
+weather_data = {
+        "hourly":{"relative_humidity_2m":
+                  [40,40,39,38,38,38,39,38,37,36,36,35,
+                   35,37,40,43,49,53,57,60,69,74,83,86,
+                   87,90,92,92,91,91,88,84,81,81,76,76,
+                   79,81,85,85,86,87,88,88,88,88,87,88,
+                   90,92,93,94,94,93,89,79,69,62,64,71,
+                   71,74,75,77,78,78,79,81,90,93,93,93,
+                   93,93,92,90,91,88,76,64,50,42,44,51,
+                   57,60,63,66,69,73,74,72,68,66,66,68,
+                   69,70,71,72,73,73,72,68,63,60,60,62,
+                   65,70,77,82,86,89,90,90,88,86,83,80,
+                   78,93,92,91,91,91,87,77,63,52,44,39,
+                   38,43,52,61,70,80,85,84,79,74,71,69,
+                   68,69,70,71,71,71,69,63,55,48,44,42,
+                   42,44,47,51,57,64,68,69,67,65,64,62]},
+                  "daily_units":
+                  {"time":"iso8601","temperature_2m_max":"°C",
+                   "temperature_2m_min":"°C"},
+                  "daily":{"time":["2025-01-22","2025-01-23",
+                                   "2025-01-24","2025-01-25",
+                                   "2025-01-26","2025-01-27",
+                                   "2025-01-28"],
+                           "temperature_2m_max":[18.5,16.8,17.1,18.4,18.3,18.2,17.9],
+                           "temperature_2m_min":[14.3,12.7,11.6,11.4,12.2,8.9,8.8]
+                           }
+                  }
+
+def test_get_cords():
+    """This function tests the get cords method."""
+    results = pars.get_cords(cords_data)
+    with pytest.raises(TypeError) as x:
+        pars.get_cords(120)
+
+    assert str(x.value) == "Json is not type dict"
+    assert results == [[{"id": 294801, "name": "Haifa", "latitude": 32.81841, 
+                         "longitude": 34.9885, "elevation": 40.0,
+                         "feature_code": "PPLA", 
+                         "country_code": "IL", 
+                         "admin1_id": 294800, 
+                         "timezone": "Asia/Jerusalem", 
+                         "population": 267300, 
+                         "country_id": 294640,
+                         "country": "Israel", 
+                         "admin1": "Haifa"}]]
+
+def test_get_week():
+    """This function tests the get week method."""
+    result = pars.get_week(weather_data)
+    with pytest.raises(TypeError) as x:
+        pars.get_week("test")
+
+    assert str(x.value)  == "Json is not type dict"
+
+    dates_string = [{"time":["2025-01-22",
+                               "2025-01-23",
+                               "2025-01-24",
+                               "2025-01-25",
+                               "2025-01-26",
+                               "2025-01-27",
+                               "2025-01-28"],
+                       "temperature_2m_max":[18.5,16.8,17.1,18.4,18.3,18.2,17.9],
+                       "temperature_2m_min":[14.3,12.7,11.6,11.4,12.2,8.9,8.8]}]
+
+    temp_string = [40,40,39,38,38,38,39,38,37,
+        36,36,35,35,37,40,43,49,53,
+        57,60,69,74,83,86,87,90,92,
+        92,91,91,88,84,81,81,76,76,
+        79,81,85,85,86,87,88,88,88,
+        88,87,88,90,92,93,94,94,93,
+        89,79,69,62,64,71,71,74,75,
+        77,78,78,79,81,90,93,93,93,
+        93,93,92,90,91,88,76,64,50,
+        42,44,51,57,60,63,66,69,73,
+        74,72,68,66,66,68,69,70,71,
+        72,73,73,72,68,63,60,60,62,
+        65,70,77,82,86,89,90,90,88,
+        86,83,80,78,93,92,91,91,91,
+        87,77,63,52,44,39,38,43,52,
+        61,70,80,85,84,79,74,71,69,
+        68,69,70,71,71,71,69,63,55,
+        48,44,42,42,44,47,51,57,64,
+        68,69,67,65,64,62]
+
+    assert result == dates_string + temp_string

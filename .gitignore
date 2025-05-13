@@ -1,0 +1,20 @@
+# ignore everything
+*
+
+# exclude stuff
+!**/
+!*.sh
+!*.md
+!*.c
+!*.h
+!*.py
+!*.css
+.venv
+!*.html
+!.gitignore
+!requirements.txt
+!makefile
+!.myfuncs
+!Jenkinsfile
+!dockerfile
+!*.txt

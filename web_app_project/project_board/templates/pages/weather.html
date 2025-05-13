@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+
+{% block header %}
+
+  <h2>{% block title %}Weather{% endblock title %}</h2>
+  {% include("_navigation.html") %}
+{% endblock header %}
+{% block content %}
+<p> {{ weather.country }} </p>
+<p> {{ weather.city }} </p>
+{% if not weather.week %}
+<p style="color: red;">Weather data unavailable. Please try again.</p>
+{% else %}
+<table style="width:100%">
+	<tr>
+		<th>Date</th>
+		<th>Day temperature</th>
+		<th>Night temperature</th>
+		<th>Humidity</th>
+	</tr>
+	{% for day in weather.week %}
+	<tr>
+		<td>{{day.date}}</td>
+		<td>{{day.day_temp}}</td>
+		<td>{{day.night_temp}}</td>
+		<td>{{day.humidity}}</td>
+	</tr>
+	{% endfor %}
+</table>
+{% endif %}
+{% endblock content%}

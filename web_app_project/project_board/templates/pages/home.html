@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h2>{% block title %}Weather!{% endblock title %}</h2>
+
+{% endblock header %}
+
+
+{% block content %}
+{% if error %}
+<p style="color: red;"> {{ error }}</p>
+{% endif %}
+<p>
+<form action="{{url_for('weather') }}" method="POST">
+	<label for="weather"> Country/City: </label> 
+	<input type="text" id="weather"name="weather" placeholder= "Enter city or country" required>
+        <input type="submit" value="Enter">
+</form>
+<div class="container">
+	<div class="row">
+		<a class="btn btn-success" href="{{url_for('download')}}">Download sky</a>
+</div>
+</p>
+
+</form>
+<div class="container">
+<a href="{{ url_for('history') }}">History</a>
+</form>
+<div class="container">
+
+{% endblock content %}
