@@ -15,7 +15,7 @@ COPY --from=compile-image /app /app
 WORKDIR /app/project_board
 
 ENV PATH="/opt/venv/bin:$PATH"
-ENV BG_COLOR="#f0f8ff"
+ENV BG_COLOR="#f0fff5"
 
 EXPOSE 8000
 
