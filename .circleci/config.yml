@@ -26,9 +26,40 @@ jobs:
           command: |
             docker build --progress=plain -t my-python-app:latest .
       - run:
-          name: Test Docker image (with output)
+          name: Save Docker image as tar
           command: |
-            docker run --rm my-python-app:latest pytest -v --maxfail=1 --disable-warnings
+            docker save my-python-app:latest -o my-python-app.tar
+      - persist_to_workspace:
+          root: .
+          paths:
+            - my-python-app.tar
+  test-docker-image:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load Docker image from tar
+          command: |
+            docker load -i my-python-app.tar
+      - run:
+          name: Run Docker image
+          command: |
+            docker run -d --name weather-app -p 8000:8000 my-python-app:latest
+            sleep 10
+            docker ps -a
+      - run:
+          name: Curl container
+          command: |
+            curl http://localhost:8000 || (docker logs weather-app && exit 1)
+      - run:
+          name: Cleanup Docker container
+          command: |
+            docker stop weather-app || true
+            docker rm weather-app || true
 workflows:
   build-and-test:
     jobs:
@@ -36,3 +67,6 @@ workflows:
       - build-docker-image:
           requires:
             - test-python
+      - test-docker-image:
+          requires:
+            - build-docker-image
