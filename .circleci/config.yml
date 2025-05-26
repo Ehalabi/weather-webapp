@@ -63,7 +63,6 @@ jobs:
                    -X POST \
                    -d '{"content": "✅ *Weather app passed health check in CircleCI!*"}' \
                    $DISCORD_WEBHOOK_URL
-            fi
       - run:
           name: Notify Discord on failure
           when: on_fail
