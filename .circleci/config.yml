@@ -25,12 +25,26 @@ jobs:
           name: Build Docker image (with output)
           command: |
             docker build --progress=plain -t my-python-app:latest .
+      - run:
+          name: Save Docker image as tar
+          command: |
+            docker save my-python-app:latest -o my-python-app.tar
+      - persist_to_workspace:
+          root: .
+          paths:
+            - my-python-app.tar
   test-docker-image:
     docker:
       - image: cimg/python:3.8-node
     steps:
       - checkout
       - setup_remote_docker
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load Docker image from tar
+          command: |
+            docker load -i my-python-app.tar
       - run:
           name: Run Docker image
           command: |
