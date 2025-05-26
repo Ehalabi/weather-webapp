@@ -59,7 +59,6 @@ jobs:
       - run:
           name: Notify Discord on success
           command: |
-            if [ "$CIRCLE_JOB" = "test-docker-image" ] && [ "$CIRCLE_WORKFLOW_STATUS" = "success" ]; then
               curl -H "Content-Type: application/json" \
                    -X POST \
                    -d '{"content": "✅ *Weather app passed health check in CircleCI!*"}' \
