@@ -35,7 +35,7 @@ jobs:
             - my-python-app.tar
   test-docker-image:
     docker:
-      - image: cimg/python:3.8-node
+      - image: cimg/base:stable
     steps:
       - checkout
       - setup_remote_docker
@@ -49,10 +49,17 @@ jobs:
           name: Run Docker image
           command: |
             docker run -d --name weather-app -p 8000:8000 my-python-app:latest
-            sleep 5
-            curl http://localhost:8000
-            docker stop weather-app
-            docker rm weather-app
+            sleep 10
+            docker ps -a
+      - run:
+          name: Curl container
+          command: |
+            curl http://localhost:8000 || (docker logs weather-app && exit 1)
+      - run:
+          name: Cleanup Docker container
+          command: |
+            docker stop weather-app || true
+            docker rm weather-app || true
 workflows:
   build-and-test:
     jobs:
