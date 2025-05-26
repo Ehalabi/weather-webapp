@@ -25,6 +25,16 @@ jobs:
           name: Build Docker image (with output)
           command: |
             docker build --progress=plain -t my-python-app:latest .
+  test-docker-image:
+    docker:
+      - image: cimg/python:3.8-node
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Test Docker image
+          command: |
+            docker run --rm my-python-app:latest pytest -v --maxfail=1 --disable-warnings
 workflows:
   build-and-test:
     jobs:
@@ -32,3 +42,6 @@ workflows:
       - build-docker-image:
           requires:
             - test-python
+      - test-docker-image:
+          requires:
+            - build-docker-image
