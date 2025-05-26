@@ -54,7 +54,8 @@ jobs:
       - run:
           name: Curl container
           command: |
-            curl weather-app:8000 || (docker logs weather-app && exit 1)
+            CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' weather-app)
+            curl http://$CONTAINER_IP:8000 || (docker logs weather-app && exit 1)
       - run:
           name: Cleanup Docker container
           command: |
