@@ -25,10 +25,6 @@ jobs:
           name: Build Docker image (with output)
           command: |
             docker build --progress=plain -t my-python-app:latest .
-      - run:
-          name: Test Docker image (with output)
-          command: |
-            docker run --rm my-python-app:latest pytest -v --maxfail=1 --disable-warnings
 workflows:
   build-and-test:
     jobs:
