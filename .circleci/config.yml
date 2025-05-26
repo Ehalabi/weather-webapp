@@ -25,10 +25,35 @@ jobs:
           name: Build Docker image (with output)
           command: |
             docker build --progress=plain -t my-python-app:latest .
+  run-container-and-curl:
+    docker:
+      - image: cimg/python:3.8-node
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: docker build -t my-python-app:latest .
+      - run:
+          name: Run container in background
+          command: |
+            docker run -d -p 8000:8000 --name test-app my-python-app:latest
+      - run:
+          name: Wait for service to start
+          command: |
+            for i in {1..10}; do
+              if curl --fail http://localhost:8000; then
+                echo "Service is up!" && exit 0
+              fi
+              echo "Waiting for service..."
+              sleep 3
+            done
+            echo "Service did not start in time" && exit 1
 workflows:
-  build-and-test:
+  test-container:
     jobs:
       - test-python
-      - build-docker-image:
+      - build-docker-image
+      - run-container-and-curl:
           requires:
-            - test-python
+            - build-docker-image
