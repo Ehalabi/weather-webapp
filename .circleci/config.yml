@@ -10,26 +10,6 @@ jobs:
       - checkout:
           path: ~/project
       - python/install-packages
-      - run:
-          name: Run tests
-          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
-      - store_test_results:
-          path: junit.xml
-  build-docker-image:
-    docker:
-      - image: cimg/python:3.8-node
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Build Docker image (with output)
-          command: |
-            docker build --progress=plain -t my-python-app:latest .
-  run-container-and-curl:
-    docker:
-      - image: cimg/python:3.8-node
-    steps:
-      - checkout
       - setup_remote_docker
       - run:
           name: Build Docker image
@@ -49,11 +29,12 @@ jobs:
               sleep 3
             done
             echo "Service did not start in time" && exit 1
+      - run:
+          name: Run tests
+          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+      - store_test_results:
+          path: junit.xml
 workflows:
   test-container:
     jobs:
       - test-python
-      - build-docker-image
-      - run-container-and-curl:
-          requires:
-            - build-docker-image
