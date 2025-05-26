@@ -54,7 +54,7 @@ jobs:
       - run:
           name: Curl container
           command: |
-            curl http://localhost:8000 || (docker logs weather-app && exit 1)
+            curl http://127.0.0.1:8000 || (docker logs weather-app && exit 1)
       - run:
           name: Cleanup Docker container
           command: |
