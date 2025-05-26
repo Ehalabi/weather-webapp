@@ -1,11 +1,50 @@
 version: 2.1
+orbs:
+  python: circleci/python@2
 jobs:
-  test-flask:
+  test-python:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.8-node
+    working_directory: ~/project/web_app_project/project_board
+    steps:
+      - checkout:
+          path: ~/project
+      - python/install-packages
+      - run:
+          name: Run tests
+          command: pytest --junitxml=junit.xml || ((($? == 5)) && echo 'Did not find any tests to run.')
+      - store_test_results:
+          path: junit.xml
+  build-docker-image:
+    docker:
+      - image: cimg/python:3.8-node
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Build Docker image (with output)
+          command: |
+            docker build --progress=plain -t my-python-app:latest .
+      - run:
+          name: Save Docker image as tar
+          command: |
+            docker save my-python-app:latest -o my-python-app.tar
+      - persist_to_workspace:
+          root: .
+          paths:
+            - my-python-app.tar
+  test-docker-image:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load Docker image from tar
+          command: |
+            docker load -i my-python-app.tar
       - run:
           name: Run Docker image
           command: |
@@ -15,14 +54,19 @@ jobs:
       - run:
           name: Curl container
           command: |
-            curl http://localhost:8000 || (docker logs weather-app && exit 1)
+            curl weather-app:8000 || (docker logs weather-app && exit 1)
       - run:
           name: Cleanup Docker container
           command: |
             docker stop weather-app || true
             docker rm weather-app || true
 workflows:
-  version: 2
-  test-flask-app:
+  build-and-test:
     jobs:
-      - test-flask
+      - test-python
+      - build-docker-image:
+          requires:
+            - test-python
+      - test-docker-image:
+          requires:
+            - build-docker-image
