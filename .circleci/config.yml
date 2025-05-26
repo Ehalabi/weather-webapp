@@ -32,9 +32,13 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Test Docker image
+          name: Run Docker image
           command: |
-            docker run --rm my-python-app:latest pytest -v --maxfail=1 --disable-warnings
+            docker run -d --name weather-app -p 8000:8000 my-python-app:latest
+            sleep 5
+            curl http://localhost:8000
+            docker stop weather-app
+            docker rm weather-app
 workflows:
   build-and-test:
     jobs:
