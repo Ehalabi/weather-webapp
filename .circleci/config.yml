@@ -57,6 +57,22 @@ jobs:
             CONTAINER_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' weather-app)
             curl http://$CONTAINER_IP:8000 || (docker logs weather-app && exit 1)
       - run:
+        name: Notify Discord on success
+        when: on_success
+        command: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"✅ *Weather app passed health check in CircleCI!*\"}" \
+               $DISCORD_WEBHOOK_URL
+      - run:
+        name: Notify Discord on failure
+        when: on_fail
+        command: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"❌ *Weather app failed health check in CircleCI!*\"}" \
+               $DISCORD_WEBHOOK_URL
+      - run:
           name: Cleanup Docker container
           command: |
             docker stop weather-app || true
