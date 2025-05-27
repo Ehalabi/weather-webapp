@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Save Docker image as tar
           command: |
-            docker save $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT -o weather-app.tar
+            docker save $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT:latest -o weather-app.tar
       - persist_to_workspace:
           root: .
           paths:
