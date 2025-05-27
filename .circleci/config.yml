@@ -24,15 +24,15 @@ jobs:
       - run:
           name: Build Docker image (with output)
           command: |
-            docker build --progress=plain -t my-python-app:latest .
+            docker build --progress=plain -t $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT .
       - run:
           name: Save Docker image as tar
           command: |
-            docker save my-python-app:latest -o my-python-app.tar
+            docker save $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT -o $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT.tar
       - persist_to_workspace:
           root: .
           paths:
-            - my-python-app.tar
+            - $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT.tar
   test-docker-image:
     docker:
       - image: cimg/base:stable
@@ -44,11 +44,11 @@ jobs:
       - run:
           name: Load Docker image from tar
           command: |
-            docker load -i my-python-app.tar
+            docker load -i $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT.tar
       - run:
           name: Run Docker image
           command: |
-            docker run -d --name weather-app -p 8000:8000 my-python-app:latest
+            docker run -d --name weather-app -p 8000:8000 $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT
             sleep 10
             docker ps -a
       - run:
@@ -58,6 +58,7 @@ jobs:
             curl http://$CONTAINER_IP:8000 || (docker logs weather-app && exit 1)
       - run:
           name: Notify Discord on success
+          when: on_success
           command: |
               curl -H "Content-Type: application/json" \
                    -X POST \
@@ -76,6 +77,25 @@ jobs:
           command: |
             docker stop weather-app || true
             docker rm weather-app || true
+
+  push-image-gitlab:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: .
+      - run:
+          name: Login to gitlab
+          command: |
+            docker login $GITLAB_REGISTRY -u $GITLAB_USER -p $GITLAB_TOKEN
+      - run:
+          name: Push image to gitlab container registry
+          command: |
+            docker push $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT
+
+
 workflows:
   build-and-test:
     jobs:
@@ -86,3 +106,6 @@ workflows:
       - test-docker-image:
           requires:
             - build-docker-image
+      - push-image-gitlab:
+          requires:
+            - test-docker-image
