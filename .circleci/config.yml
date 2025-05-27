@@ -77,7 +77,6 @@ jobs:
           command: |
             docker stop weather-app || true
             docker rm weather-app || true
-
   push-image-gitlab:
     docker:
       - image: cimg/base:stable
@@ -87,6 +86,10 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Load Docker image from tar
+          command: |
+            docker load -i weather-app.tar
+      - run:
           name: Login to gitlab
           command: |
             echo $GITLAB_TOKEN | docker login $GITLAB_REGISTRY -u $GITLAB_USER --password-stdin
@@ -94,8 +97,6 @@ jobs:
           name: Push image to gitlab container registry
           command: |
             docker push $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT:latest
-
-
 workflows:
   build-and-test:
     jobs:
