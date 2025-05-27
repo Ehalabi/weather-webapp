@@ -89,7 +89,7 @@ jobs:
       - run:
           name: Login to gitlab
           command: |
-            docker login -u $GITLAB_USER -p $GITLAB_TOKEN $GITLAB_REGISTRY
+            echo $GITLAB_TOKEN | docker login $GITLAB_REGISTRY -u $GITLAB_USER --password-stdin
       - run:
           name: Push image to gitlab container registry
           command: |
