@@ -24,7 +24,7 @@ jobs:
       - run:
           name: Build Docker image (with output)
           command: |
-            docker build --progress=plain -t $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT .
+            docker build --progress=plain -t $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT:latest .
       - run:
           name: Save Docker image as tar
           command: |
@@ -48,7 +48,7 @@ jobs:
       - run:
           name: Run Docker image
           command: |
-            docker run -d --name weather-app -p 8000:8000 $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT
+            docker run -d --name weather-app -p 8000:8000 $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT:latest
             sleep 10
             docker ps -a
       - run:
@@ -93,7 +93,7 @@ jobs:
       - run:
           name: Push image to gitlab container registry
           command: |
-            docker push $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT
+            docker push $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT:latest
 
 
 workflows:
