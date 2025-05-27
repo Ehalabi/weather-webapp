@@ -28,11 +28,11 @@ jobs:
       - run:
           name: Save Docker image as tar
           command: |
-            docker save $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT -o $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT.tar
+            docker save $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT -o weather-app.tar
       - persist_to_workspace:
           root: .
           paths:
-            - $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT.tar
+            - weather-app.tar
   test-docker-image:
     docker:
       - image: cimg/base:stable
@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Load Docker image from tar
           command: |
-            docker load -i $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT.tar
+            docker load -i weather-app.tar
       - run:
           name: Run Docker image
           command: |
