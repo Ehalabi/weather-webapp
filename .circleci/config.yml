@@ -97,6 +97,18 @@ jobs:
           name: Push image to gitlab container registry
           command: |
             docker push $GITLAB_REGISTRY/$GITLAB_GROUP/$GITLAB_PROJECT:latest
+  chekov:
+    docker:
+      - image: bridgecrew/chekov:latest
+    steps:
+      - checkout
+      - run:
+          name: Install Checkov
+          command: pip install -U checkov
+
+      - run:
+          name: Run Checkov
+          command: checkov --directory ../
 workflows:
   build-and-test:
     jobs:
